@@ -1,0 +1,617 @@
+<!doctype html>
+<html lang="tr">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" />
+    <title>Prensesimi Kurtarmalıyım 💖</title>
+    <style>
+        :root {
+            --bg1: #5b57ff;
+            --bg2: #6f56d9;
+            --stroke: #ffffff33;
+            --panel: #ffffff1a;
+            --pink: #ff4fa0;
+            --pink2: #ff87c2;
+            --ink: #111;
+        }
+
+        * {
+            box-sizing: border-box
+        }
+
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+            font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial
+        }
+
+        body {
+            background:
+                radial-gradient(1200px 900px at 20% 10%, #7aa3ff 0%, transparent 55%),
+                radial-gradient(1200px 900px at 80% 0%, #b07cff 0%, transparent 55%),
+                linear-gradient(180deg, var(--bg1), var(--bg2));
+            overflow: hidden;
+            color: #fff;
+        }
+
+        /* Mobile fullscreen prompt overlay */
+        .fullscreen-prompt {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.9);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            flex-direction: column;
+            gap: 20px;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .fullscreen-prompt.show {
+            display: flex;
+        }
+
+        .fullscreen-prompt h2 {
+            margin: 0;
+            font-size: 24px;
+        }
+
+        .fullscreen-prompt p {
+            margin: 0;
+            opacity: 0.8;
+        }
+
+        .fullscreen-btn {
+            padding: 16px 32px;
+            font-size: 18px;
+            font-weight: 800;
+            border: none;
+            border-radius: 16px;
+            background: linear-gradient(135deg, var(--pink), var(--pink2));
+            color: white;
+            cursor: pointer;
+            box-shadow: 0 10px 30px rgba(255, 79, 160, 0.4);
+        }
+
+        /* Hide fullscreen prompt on all devices */
+        .fullscreen-prompt {
+            display: none !important;
+        }
+
+        .wrap {
+            position: relative;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            padding: 18px 14px 16px;
+            gap: 14px;
+        }
+
+        .topRow {
+            width: min(1120px, 96vw);
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+        }
+
+        .backBtn {
+            appearance: none;
+            border: 1px solid var(--stroke);
+            background: rgba(255, 255, 255, .25);
+            color: #fff;
+            padding: 12px 14px;
+            border-radius: 999px;
+            cursor: pointer;
+            font-weight: 800;
+            backdrop-filter: blur(10px);
+        }
+
+        .gameCard {
+            width: min(1120px, 96vw);
+            aspect-ratio: 16 / 9;
+            border-radius: 26px;
+            background: rgba(255, 255, 255, .10);
+            border: 1px solid rgba(255, 255, 255, .18);
+            box-shadow: 0 30px 90px rgba(0, 0, 0, .25);
+            overflow: hidden;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Mobile: make game larger and fill more screen */
+        @media (max-width: 768px) {
+            .gameCard {
+                width: 100vw;
+                height: 65vw;
+                /* Bigger game area */
+                min-height: 300px;
+                max-height: 75vh;
+                /* More space for game */
+                border-radius: 0;
+                margin: 0 -14px;
+            }
+
+            .wrap {
+                padding: 6px 14px 8px;
+                gap: 6px;
+            }
+
+            .topRow {
+                width: 100%;
+            }
+
+            .backBtn {
+                padding: 8px 12px;
+                font-size: 13px;
+            }
+
+            .controls {
+                gap: 16px;
+            }
+
+            .cbtn {
+                width: 56px;
+                height: 56px;
+                font-size: 22px;
+            }
+
+            .hint {
+                font-size: 11px;
+                display: none;
+                /* Hide hint on mobile to save space */
+            }
+
+            .hud {
+                top: 6px;
+                right: 6px;
+            }
+
+            .pill {
+                padding: 4px 6px;
+                font-size: 10px;
+            }
+        }
+
+        #game {
+            width: 100%;
+            height: 100%
+        }
+
+        /* HUD */
+        .hud {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            z-index: 5;
+            pointer-events: none;
+            font-weight: 900;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, .25);
+        }
+
+        .pill {
+            padding: 8px 10px;
+            border-radius: 999px;
+            background: rgba(0, 0, 0, .25);
+            border: 1px solid rgba(255, 255, 255, .18);
+            font-size: 13px;
+            white-space: nowrap;
+        }
+
+        /* Controls */
+        .controls {
+            display: flex;
+            gap: 14px;
+            align-items: center;
+            justify-content: center;
+            padding: 6px 0 0;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: manipulation;
+        }
+
+        .cbtn {
+            width: 74px;
+            height: 74px;
+            border-radius: 999px;
+            background: #fff;
+            border: 3px solid rgba(255, 79, 160, .55);
+            color: #111;
+            font-size: 28px;
+            font-weight: 900;
+            cursor: pointer;
+            box-shadow: 0 18px 40px rgba(0, 0, 0, .18);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            /* Mobile touch fixes - prevent text selection and context menu */
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .cbtn:active {
+            transform: translateY(1px)
+        }
+
+        .hint {
+            text-align: center;
+            font-size: 14px;
+            opacity: .92;
+            font-weight: 800;
+            text-shadow: 0 2px 14px rgba(0, 0, 0, .25);
+            line-height: 1.35;
+        }
+
+        .hint small {
+            display: block;
+            opacity: .85;
+            font-weight: 700;
+            margin-top: 4px;
+        }
+
+        /* Hamburger Menu */
+        #menuBtn {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            width: 45px;
+            height: 45px;
+            background: rgba(255, 255, 255, 0.25);
+            border: 2px solid rgba(255, 255, 255, 0.4);
+            border-radius: 10px;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            z-index: 100;
+            transition: all 0.3s ease;
+        }
+
+        /* Reposition hamburger menu on mobile - move to right side */
+        @media (max-width: 768px) {
+            #menuBtn {
+                left: auto;
+                right: 10px;
+            }
+        }
+
+        #menuBtn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.05);
+        }
+
+        #menuBtn span {
+            width: 28px;
+            height: 3px;
+            background: white;
+            border-radius: 2px;
+            transition: all 0.3s ease;
+        }
+
+        #levelMenu {
+            position: absolute;
+            top: 0;
+            left: -280px;
+            width: 280px;
+            height: 100%;
+            background: rgba(20, 20, 40, 0.96);
+            border-right: 2px solid rgba(255, 255, 255, 0.25);
+            box-shadow: 4px 0 20px rgba(0, 0, 0, 0.6);
+            z-index: 99;
+            transition: left 0.3s ease;
+            padding: 70px 16px 20px;
+            backdrop-filter: blur(12px);
+        }
+
+        #levelMenu.show {
+            left: 0;
+        }
+
+        #levelMenu h3 {
+            color: white;
+            margin: 0 0 20px;
+            font-size: 22px;
+            text-align: center;
+        }
+
+        .levelBtn {
+            width: 100%;
+            padding: 16px;
+            margin: 10px 0;
+            background: linear-gradient(135deg, var(--pink) 0%, var(--pink2) 100%);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(255, 79, 160, 0.3);
+        }
+
+        .levelBtn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(255, 79, 160, 0.5);
+        }
+
+        .levelBtn:active {
+            transform: translateY(0);
+        }
+
+
+        /* Overlays */
+        .overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, .45);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            z-index: 20;
+            backdrop-filter: blur(6px);
+        }
+
+        .overlay.show {
+            display: flex;
+        }
+
+        .panel {
+            width: min(560px, 92%);
+            border-radius: 22px;
+            background: rgba(255, 255, 255, .18);
+            border: 1px solid rgba(255, 255, 255, .22);
+            box-shadow: 0 30px 90px rgba(0, 0, 0, .35);
+            padding: 18px 16px;
+            text-align: center;
+        }
+
+        .panel h1,
+        .panel h2 {
+            margin: 0 0 8px
+        }
+
+        .panel p {
+            margin: 0 0 14px;
+            opacity: .92;
+            font-weight: 700;
+            line-height: 1.5
+        }
+
+        .row {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap
+        }
+
+        .btn {
+            appearance: none;
+            border: 0;
+            border-radius: 14px;
+            padding: 12px 14px;
+            cursor: pointer;
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--pink), var(--pink2));
+            color: #fff;
+        }
+
+        .btn.secondary {
+            background: rgba(255, 255, 255, .82);
+            color: #111;
+            border: 1px solid rgba(0, 0, 0, .08);
+        }
+
+        .muted {
+            opacity: .85;
+            font-weight: 750;
+            font-size: 13px;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Mobile Fullscreen Prompt -->
+    <div id="fullscreenPrompt" class="fullscreen-prompt show">
+        <h2>📱 Yatay Mod</h2>
+        <p>En iyi deneyim için telefonu yatay çevir!</p>
+        <button class="fullscreen-btn" id="goFullscreen">🎮 Oyuna Başla</button>
+    </div>
+
+    <div class="wrap">
+        <!-- Hamburger Menu Button -->
+        <div id="menuBtn">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+
+        <!-- Level Selector Menu -->
+        <div id="levelMenu">
+            <h3>🌸 Bölüm Seç 🌸</h3>
+            <button class="levelBtn" onclick="selectLevel(0)">
+                🏃 Bölüm 1: Başlangıç Vadisi
+            </button>
+            <button class="levelBtn" onclick="selectLevel(1)">
+                ⚔️ Bölüm 2: Dikenli Patika
+            </button>
+            <button class="levelBtn" onclick="selectLevel(2)">
+                🌸 Bölüm 3: Sakura Zirvesi
+            </button>
+        </div>
+
+        <div class="topRow">
+            <button class="backBtn" id="backBtn" type="button">← Geri Dön</button>
+        </div>
+
+        <div class="gameCard">
+            <div class="hud">
+                <div class="pill" id="hudLevel">🌸 Bölüm 1/3</div>
+                <div class="pill" id="hudLives">❤️❤️❤️</div>
+                <div class="pill" id="hudHearts">💗 0/0 (Gerekli: 0)</div>
+            </div>
+
+            <div id="game"></div>
+
+            <!-- START SCREEN -->
+            <div class="overlay show" id="startOverlay">
+                <div class="panel">
+                    <h1>Prensesimi Kurtarmalıyım 💖</h1>
+                    <p class="muted">
+                        Amaç: Efe olarak platformlarda zıpla, kalplerin %75’ini topla ve Sena'ya ulaş.
+                        <br />Kontrol: Klavye ok tuşları • Mobilde butonlar
+                    </p>
+                    <div class="row">
+                        <button class="btn" id="startBtn" type="button">Oyuna Başla ✨</button>
+                        <button class="btn secondary" id="howBtn" type="button">Kurallar</button>
+                    </div>
+                    <p class="muted" id="howText" style="display:none;margin-top:10px;">
+                        • 3 canın var. <br />
+                        • Mobların üstüne basarsan ölür, yandan değerse can gidersin. <br />
+                        • Bayrak checkpoint: ölünce oradan doğarsın. <br />
+                        • Sena %75 kalp olmadan kabul etmez 😄
+                    </p>
+                </div>
+            </div>
+
+            <!-- REJECTION (not enough hearts) -->
+            <div class="overlay" id="rejectOverlay">
+                <div class="panel">
+                    <h2>Sena: Dur! 💔</h2>
+                    <p>
+                        Daha fazla kalp toplamalısın! <br />
+                        <b><span id="missingHearts">0</span> kalp</b> daha lazım 💗
+                    </p>
+                    <div class="row">
+                        <button class="btn" id="backToLevelBtn" type="button">Geri Dön</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LEVEL COMPLETE -->
+            <div class="overlay" id="levelOverlay">
+                <div class="panel">
+                    <h2 id="levelTitle">Bölüm Tamam! 🌸</h2>
+                    <p id="levelDesc">Harikasın.</p>
+                    <div class="row">
+                        <button class="btn" id="nextLevelBtn" type="button">Sonraki Bölüm →</button>
+                        <button class="btn secondary" id="restartBtn" type="button">Baştan</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- GAME OVER -->
+            <div class="overlay" id="gameOverOverlay">
+                <div class="panel">
+                    <h2>Game Over 💀</h2>
+                    <p>Canların bitti. Baştan deneyelim mi?</p>
+                    <div class="row">
+                        <button class="btn" id="retryBtn" type="button">Tekrar Dene</button>
+                        <button class="btn secondary" id="backBtn2" type="button">Siteye Dön</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VICTORY -->
+            <div class="overlay" id="victoryOverlay">
+                <div class="panel">
+                    <h2>🎉 Tebrikler Efe! 💖</h2>
+                    <p id="victoryDesc">Prensesini kurtardın! Sena artık güvende 🌸<br><br>Efe, Sena'yı o kadar çok
+                        seviyor ki<br>tüm engelleri aştı ve ona ulaştı! 💕<br><br>Sonsuza kadar mutlu yaşadılar... ✨</p>
+                    <div class="row">
+                        <button class="btn" id="playAgainBtn" type="button">Tekrar Oyna</button>
+                        <button class="btn secondary" id="backBtn3" type="button">Siteye Dön</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="controls" aria-label="Kontroller">
+            <button class="cbtn" id="btnLeft" type="button">←</button>
+            <button class="cbtn" id="btnJump" type="button">↑</button>
+            <button class="cbtn" id="btnRight" type="button">→</button>
+        </div>
+
+        <div class="hint">
+            🎮 Efe olarak platformlarda zıpla ve Sena’ya ulaş! 💕
+            <small>Klavye: Ok tuşları • Mobil: Butonlar</small>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/phaser@3.80.1/dist/phaser.min.js"></script>
+    <script src="./game.js?v=48"></script>
+    <script>
+        // Prevent context menu and text selection on mobile control buttons
+        document.querySelectorAll('.cbtn').forEach(btn => {
+            btn.addEventListener('contextmenu', e => e.preventDefault());
+            btn.addEventListener('selectstart', e => e.preventDefault());
+            // Prevent long-press menu on iOS
+            btn.addEventListener('touchend', e => {
+                if (e.cancelable) e.preventDefault();
+            });
+        });
+        // Also prevent on the controls container
+        const controls = document.querySelector('.controls');
+        if (controls) {
+            controls.addEventListener('contextmenu', e => e.preventDefault());
+            controls.addEventListener('selectstart', e => e.preventDefault());
+        }
+
+        // Mobile fullscreen handling
+        (function () {
+            const prompt = document.getElementById('fullscreenPrompt');
+            const btn = document.getElementById('goFullscreen');
+
+            // Detect mobile device
+            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 769;
+
+            // Hide prompt on desktop
+            if (!isMobile) {
+                prompt.classList.remove('show');
+                return;
+            }
+
+            btn.addEventListener('click', async () => {
+                // Hide prompt first
+                prompt.classList.remove('show');
+
+                // Try fullscreen (works on Android Chrome, doesn't work on iOS Safari)
+                try {
+                    const elem = document.documentElement;
+                    if (elem.requestFullscreen) {
+                        await elem.requestFullscreen();
+                    } else if (elem.webkitRequestFullscreen) {
+                        await elem.webkitRequestFullscreen();
+                    }
+
+                    // Try orientation lock (Android only)
+                    if (screen.orientation && screen.orientation.lock) {
+                        await screen.orientation.lock('landscape').catch(() => { });
+                    }
+                } catch (e) {
+                    // Fullscreen not supported (iOS) - game will still work
+                    console.log('Fullscreen API not supported, continuing anyway');
+                }
+            });
+        })();
+    </script>
+</body>
+
+</html>
