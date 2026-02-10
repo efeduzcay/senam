@@ -1434,6 +1434,20 @@
                         <button class="btn" id="goStory" type="button">Hikâyeye Başla</button>
                         <button class="btn secondary" id="goWall" type="button">Fotoğraflar</button>
                     </div>
+
+                    <!-- Random Reason Generator -->
+                    <div style="margin-top: 24px; padding-top: 20px; border-top: 1px dashed rgba(31,26,29,0.1);">
+                        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 10px;">
+                            <button id="reasonBtn" class="btn ghost"
+                                style="background: rgba(255, 59, 141, 0.1); color: var(--accent); border: 1px solid rgba(255, 59, 141, 0.2); font-size: 14px; padding: 8px 14px;">
+                                Neden Seni Seviyorum? 🎲
+                            </button>
+                        </div>
+                        <div id="reasonDisplay"
+                            style="font-size: 15px; font-style: italic; color: var(--muted); min-height: 24px;">
+                            <!-- Text will appear here -->
+                        </div>
+                    </div>
                 </div>
 
                 <aside class="card hero-right">
@@ -1447,6 +1461,16 @@
                         <div class="row">
                             <a class="mini-btn" id="openMaps2" href="#" target="_blank" rel="noopener">Haritayı aç</a>
                             <button class="mini-btn" id="replayIntro" type="button">Tekrar izle</button>
+                        </div>
+                    </div>
+
+                    <!-- Live Love Counter -->
+                    <div class="meet"
+                        style="background: radial-gradient(circle at 10% 20%, rgba(255, 59, 141, .08), transparent 90%), #fff;">
+                        <h3>Geçen Süre ⏳💖</h3>
+                        <div id="loveCounter"
+                            style="font-family: monospace; font-size: 15px; color: var(--accent); font-weight: 700; line-height: 1.6;">
+                            Hesaplanıyor...
                         </div>
                     </div>
 
@@ -1730,6 +1754,8 @@
                     overlay.style.transition = 'all 0.4s ease';
                     setTimeout(() => {
                         overlay.classList.add('hidden');
+                        // Trigger the intro show
+                        window.dispatchEvent(new Event('securityPassed'));
                     }, 400);
                 } else {
                     // Wrong answer
@@ -1815,7 +1841,12 @@
                 }
             }, 28);
         }
-        typeSequence();
+        // typeSequence(); // Removed immediate call
+
+        // Listen for security pass to start visuals
+        window.addEventListener('securityPassed', () => {
+            typeSequence();
+        });
 
         function closeIntro() {
             const intro = $("#intro");
@@ -2042,6 +2073,78 @@
                 im.src = p;
             });
         })();
+
+        // ====== Live Love Counter ======
+        function updateLoveCounter() {
+            const start = new Date(FIRST_MEET_DATE + "T14:00:00"); // Approx time
+            const now = new Date();
+
+            let diff = now - start;
+
+            const years = Math.floor(diff / (1000 * 60 * 60 * 24 * 365.25));
+            diff -= years * (1000 * 60 * 60 * 24 * 365.25);
+
+            const months = Math.floor(diff / (1000 * 60 * 60 * 24 * 30.44));
+            diff -= months * (1000 * 60 * 60 * 24 * 30.44);
+
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            diff -= days * (1000 * 60 * 60 * 24);
+
+            const hours = Math.floor(diff / (1000 * 60 * 60));
+            diff -= hours * (1000 * 60 * 60);
+
+            const minutes = Math.floor(diff / (1000 * 60));
+            diff -= minutes * (1000 * 60);
+
+            const seconds = Math.floor(diff / 1000);
+
+            const str = `
+                ${years} Yıl<br>
+                ${months} Ay, ${days} Gün<br>
+                ${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}
+            `;
+            const el = document.getElementById("loveCounter");
+            if (el) el.innerHTML = str;
+        }
+        setInterval(updateLoveCounter, 1000);
+        updateLoveCounter();
+
+        // ====== Why I Love You Generator ======
+        const REASONS = [
+            "Çünkü gülüşün, en karanlık günümü bile aydınlatıyor. ☀️",
+            "Sesini duymak bana huzur veriyor. 🎶",
+            "Seninle saçmalamayı bile çok seviyorum. 🤪",
+            "Bana bakışın, kendimi özel hissettiriyor. ✨",
+            "Senin yanındayken zamanın nasıl geçtiğini anlamıyorum. ⏳",
+            "Gözlerinin içi gülüyor ve bu beni bitiriyor. 👀💖",
+            "Sadece varlığın bile yetiyor. 🏠",
+            "Sen benim en iyi arkadaşım ve aşkımsın. 💑",
+            "Her detayını ayrı seviyorum. 🌸",
+            "Seninle hayal kurmak dünyanın en güzel şeyi. 💭",
+            "İyi ki varsın, iyi ki benimsin. ❤️"
+        ];
+
+        const reasonBtn = document.getElementById("reasonBtn");
+        const reasonDisplay = document.getElementById("reasonDisplay");
+
+        if (reasonBtn && reasonDisplay) {
+            reasonBtn.addEventListener("click", () => {
+                // Random animation visual
+                reasonDisplay.style.opacity = "0";
+                reasonDisplay.style.transform = "translateY(5px)";
+
+                setTimeout(() => {
+                    // Pick random
+                    const randomReason = REASONS[Math.floor(Math.random() * REASONS.length)];
+                    reasonDisplay.textContent = randomReason;
+
+                    // Show
+                    reasonDisplay.style.transition = "all 0.3s ease";
+                    reasonDisplay.style.opacity = "1";
+                    reasonDisplay.style.transform = "translateY(0)";
+                }, 200);
+            });
+        }
     </script>
 </body>
 

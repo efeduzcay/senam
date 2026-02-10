@@ -518,7 +518,9 @@ function startNewRun(nextIndex) {
         // find a platform near x (pick first that covers that x)
         const plat = findPlatformCoveringX(platforms, x) || currentLevel.platforms[0];
         const yTop = plat.body ? plat.body.top : plat[1];
-        const flag = checkpoints.create(x, yTop, "flag");
+        // Flag texture is 90px tall, pole bottom is at pixel 84 (6px from texture bottom)
+        // Move flag down by 6px so pole bottom aligns with ground top
+        const flag = checkpoints.create(x, yTop + 6, "flag");
         flag.setOrigin(0.5, 1);
         flag.refreshBody();
         flag.setData("hit", false);
@@ -761,15 +763,37 @@ function startNewRun(nextIndex) {
 
     // checkpoints on platforms
     checkpointFlags = [];
-    currentLevel.checkpoints.forEach((x) => {
+    currentLevel.checkpoints.forEach((x, index) => {
         // find a platform near x (pick first that covers that x)
         const plat = findPlatformCoveringX(platforms, x) || currentLevel.platforms[0];
         const yTop = plat.body ? plat.body.top : plat[1];
-        const flag = checkpoints.create(x, yTop, "flag");
+        // Flag texture is 90px tall, pole bottom is at pixel 84 (6px from texture bottom)
+        // Move flag down by 6px so pole bottom aligns with ground top
+        const flag = checkpoints.create(x, yTop + 6, "flag");
         flag.setOrigin(0.5, 1);
         flag.refreshBody();
         flag.setData("hit", false);
         checkpointFlags.push(flag);
+
+        // Add waving animation to flag
+        sceneRef.tweens.add({
+            targets: flag,
+            scaleX: { from: 1, to: 0.95 },
+            duration: 800 + (index * 200), // Slightly different timing for each flag
+            yoyo: true,
+            repeat: -1,
+            ease: 'Sine.easeInOut'
+        });
+
+        // Add subtle rotation for more natural wave
+        sceneRef.tweens.add({
+            targets: flag,
+            angle: { from: -3, to: 3 },
+            duration: 1200 + (index * 150),
+            yoyo: true,
+            repeat: -1,
+            ease: 'Sine.easeInOut'
+        });
     });
 
     // starting checkpoint (always start)
@@ -1085,6 +1109,9 @@ function placeEnemies(group, platformGroup, count) {
         enemy.setData("speed", ENEMY_SPEED);
         enemy.setData("dir", Math.random() > 0.5 ? 1 : -1);
         enemy.setData("alive", true);
+
+        // Add idle animation (Squash & Stretch)
+        tweenEnemy(sceneRef, enemy);
 
         enemy.setVelocityX(enemy.getData("dir") * ENEMY_SPEED);
 
@@ -1433,40 +1460,93 @@ function makeTextures(scene) {
         g.destroy();
     }
 
-    // flag
+    // flag - Extended pole to touch ground with S logo
     if (!scene.textures.exists("flag")) {
         const g = scene.make.graphics({ x: 0, y: 0, add: false });
-        g.fillStyle(0xffffff, 1); g.fillRect(14, 4, 4, 52);
-        g.fillStyle(0xff4fa0, 1); g.fillRect(18, 8, 28, 14);
-        g.fillStyle(0xffffff, 1); g.fillCircle(30, 15, 3);
-        g.generateTexture("flag", 48, 64);
+        // Taller pole (80px) to reach ground
+        g.fillStyle(0xffffff, 1); g.fillRect(14, 4, 4, 80);
+        // Flag design with gradient-like effect
+        g.fillStyle(0xff4fa0, 1); g.fillRect(18, 8, 30, 16);
+        g.fillStyle(0xff87c2, 1); g.fillRect(18, 8, 30, 8); // Lighter top half
+        // S logo on flag (pixelated)
+        g.fillStyle(0xffffff, 1);
+        // Top curve of S
+        g.fillRect(29, 11, 2, 2);
+        g.fillRect(31, 11, 2, 2);
+        g.fillRect(33, 11, 2, 2);
+        g.fillRect(29, 13, 2, 2);
+        // Middle
+        g.fillRect(31, 15, 2, 2);
+        // Bottom curve of S
+        g.fillRect(35, 17, 2, 2);
+        g.fillRect(29, 19, 2, 2);
+        g.fillRect(31, 19, 2, 2);
+        g.fillRect(33, 19, 2, 2);
+        g.generateTexture("flag", 48, 90);
         g.destroy();
     }
 
-    // enemy (sakura temalı minik yaratık)
+    // enemy (Cute Sakura Blob)
     if (!scene.textures.exists("enemy")) {
         const g = scene.make.graphics({ x: 0, y: 0, add: false });
-        // body
-        g.fillStyle(0xff61b0, 1);
-        g.fillRoundedRect(6, 10, 28, 22, 10);
-        // eyes
-        g.fillStyle(0x111111, 1);
-        g.fillCircle(16, 22, 2);
-        g.fillCircle(28, 22, 2);
-        // blush
-        g.fillStyle(0xffa3cf, 1);
-        g.fillCircle(12, 26, 2);
-        g.fillCircle(32, 26, 2);
-        g.generateTexture("enemy", 40, 40);
+
+        // 1. Main Body (Blob shape)
+        // Physics body is 30x30. We draw slightly wider/shorter to look squishy.
+        // Origin will be (0.5, 1) -> Bottom Center.
+        // We carefully draw relative to width=32, height=32.
+
+        g.fillStyle(0xff80ab, 1); // Darker pink base
+        g.fillEllipse(16, 16, 30, 28); // Base body
+
+        g.fillStyle(0xffb2dd, 1); // Lighter pink top highlight
+        g.fillEllipse(16, 12, 26, 20);
+
+        // 2. Eyes (Cute & Big)
+        g.fillStyle(0x2d0a14, 1); // Dark brown/black
+        g.fillCircle(11, 14, 3.5); // Left eye
+        g.fillCircle(21, 14, 3.5); // Right eye
+
+        // Eye Shine
+        g.fillStyle(0xffffff, 1);
+        g.fillCircle(12, 13, 1.5);
+        g.fillCircle(22, 13, 1.5);
+
+        // 3. Blush
+        g.fillStyle(0xff6090, 0.6);
+        g.fillEllipse(7, 18, 4, 2);
+        g.fillEllipse(25, 18, 4, 2);
+
+        // 4. Tiny Leaf on head (Sakura theme)
+        g.fillStyle(0x9dc45f, 1);
+        g.fillEllipse(16, 2, 6, 3);
+
+        g.generateTexture("enemy", 32, 32);
         g.destroy();
     }
 
-    // spike (triangle)
+    // spike (triangle) - Enhanced with 3D shading
     if (!scene.textures.exists("spike")) {
         const g = scene.make.graphics({ x: 0, y: 0, add: false });
-        g.fillStyle(0x999999, 1);
-        // Triangle: 0,32 -> 16,0 -> 32,32
+
+        // Dark shadow/outline
+        g.fillStyle(0x333333, 1);
         g.fillTriangle(0, 32, 16, 0, 32, 32);
+
+        // Main body (darker gray)
+        g.fillStyle(0x666666, 1);
+        g.fillTriangle(2, 32, 16, 2, 30, 32);
+
+        // Lighter left side (highlight)
+        g.fillStyle(0x888888, 1);
+        g.fillTriangle(4, 32, 16, 4, 16, 32);
+
+        // Bright edge highlight
+        g.lineStyle(1, 0xaaaaaa, 1);
+        g.beginPath();
+        g.moveTo(4, 32);
+        g.lineTo(16, 4);
+        g.strokePath();
+
         g.generateTexture("spike", 32, 32);
         g.destroy();
     }
@@ -1492,6 +1572,26 @@ function addPlat(group, x, y, w, h) {
         sceneRef.physics.add.existing(p, true);
         group.add(p);
     }
+}
+
+//////////////////////////
+// ANIMATION HELPERS    //
+//////////////////////////
+function tweenEnemy(scene, target) {
+    // Random start delay to avoid synchronized dancing
+    scene.time.delayedCall(Math.random() * 1000, () => {
+        if (!target.scene) return; // Check if destroyed
+        scene.tweens.add({
+            targets: target,
+            scaleY: 0.9,
+            scaleX: 1.1,
+            // y: '+=2', // Slight position adjust if needed visually, but origin (0.5,1) handles most
+            duration: 600,
+            yoyo: true,
+            repeat: -1,
+            ease: 'Sine.easeInOut'
+        });
+    });
 }
 
 //////////////////////////

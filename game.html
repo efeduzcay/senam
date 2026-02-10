@@ -102,14 +102,21 @@
 
         .backBtn {
             appearance: none;
-            border: 1px solid var(--stroke);
-            background: rgba(255, 255, 255, .25);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.2));
             color: #fff;
-            padding: 12px 14px;
+            padding: 12px 18px;
             border-radius: 999px;
             cursor: pointer;
             font-weight: 800;
-            backdrop-filter: blur(10px);
+            backdrop-filter: blur(15px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+            transition: all 0.3s ease;
+        }
+
+        .backBtn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
         }
 
         .gameCard {
@@ -126,22 +133,32 @@
             justify-content: center;
         }
 
-        /* Mobile: make game larger and fill more screen */
+        /* Mobile: Enhanced visuals */
         @media (max-width: 768px) {
+            body {
+                background:
+                    radial-gradient(800px 600px at 30% 20%, #7aa3ff 0%, transparent 60%),
+                    radial-gradient(800px 600px at 70% 80%, #ff87c2 0%, transparent 60%),
+                    linear-gradient(180deg, #5b57ff, #6f56d9);
+            }
+
             .gameCard {
                 width: 100vw;
                 height: 65vw;
-                /* Bigger game area */
-                min-height: 300px;
-                max-height: 75vh;
-                /* More space for game */
-                border-radius: 0;
+                min-height: 320px;
+                max-height: 72vh;
+                border-radius: 16px;
                 margin: 0 -14px;
+                background: linear-gradient(135deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.08));
+                border: 2px solid rgba(255, 255, 255, 0.25);
+                box-shadow:
+                    0 20px 60px rgba(0, 0, 0, 0.3),
+                    inset 0 1px 0 rgba(255, 255, 255, 0.3);
             }
 
             .wrap {
-                padding: 6px 14px 8px;
-                gap: 6px;
+                padding: 10px 14px 12px;
+                gap: 10px;
             }
 
             .topRow {
@@ -200,12 +217,23 @@
         }
 
         .pill {
-            padding: 8px 10px;
+            padding: 9px 14px;
             border-radius: 999px;
-            background: rgba(0, 0, 0, .25);
-            border: 1px solid rgba(255, 255, 255, .18);
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.35), rgba(0, 0, 0, 0.25));
+            border: 1px solid rgba(255, 255, 255, 0.25);
             font-size: 13px;
+            font-weight: 700;
             white-space: nowrap;
+            box-shadow:
+                0 4px 12px rgba(0, 0, 0, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+
+        @media (max-width: 768px) {
+            .pill {
+                padding: 10px 16px;
+                font-size: 14px;
+            }
         }
 
         /* Controls */
@@ -221,20 +249,24 @@
         }
 
         .cbtn {
-            width: 74px;
-            height: 74px;
+            width: 76px;
+            height: 76px;
             border-radius: 999px;
-            background: #fff;
-            border: 3px solid rgba(255, 79, 160, .55);
+            background: linear-gradient(135deg, #ffffff, #f5f5f5);
+            border: 3px solid rgba(255, 79, 160, 0.6);
             color: #111;
-            font-size: 28px;
+            font-size: 30px;
             font-weight: 900;
             cursor: pointer;
-            box-shadow: 0 18px 40px rgba(0, 0, 0, .18);
+            box-shadow:
+                0 8px 20px rgba(255, 79, 160, 0.3),
+                0 2px 6px rgba(0, 0, 0, 0.15),
+                inset 0 1px 0 rgba(255, 255, 255, 0.5);
             display: flex;
             align-items: center;
             justify-content: center;
-            /* Mobile touch fixes - prevent text selection and context menu */
+            transition: all 0.2s ease;
+            /* Mobile touch fixes */
             -webkit-touch-callout: none;
             -webkit-user-select: none;
             -moz-user-select: none;
@@ -244,8 +276,20 @@
             -webkit-tap-highlight-color: transparent;
         }
 
+        @media (max-width: 768px) {
+            .cbtn {
+                width: 85px;
+                height: 85px;
+                font-size: 32px;
+                border-width: 4px;
+            }
+        }
+
         .cbtn:active {
-            transform: translateY(1px)
+            transform: scale(0.95);
+            box-shadow:
+                0 4px 12px rgba(255, 79, 160, 0.4),
+                0 1px 3px rgba(0, 0, 0, 0.2);
         }
 
         .hint {
